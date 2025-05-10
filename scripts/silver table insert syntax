@@ -63,6 +63,7 @@ from Bronze.crm_cust_info
 
 
 
+
 // silver.crm_prd_info inserting//
 
 NSERT INTO silver.crm_prd_info (
@@ -91,6 +92,7 @@ SELECT
     CAST(prd_start_dt AS DATE) AS prd_start_dt,
     CAST(LEAD(prd_start_dt) OVER (PARTITION BY prd_key ORDER BY prd_start_dt) - 1 AS DATE) AS prd_end_dt
 FROM Bronze.crm_prd_info;
+
 
 
 // ilver.crm_sales_details inserting//
@@ -136,4 +138,50 @@ SELECT
 FROM bronze.crm_sales_details;
 
 
+
+// silver.erp_cust_az12 inserting//
+
+Insert into silver.erp_cust_az12(cid,bdate,gen)
+
+
+select 
+case when cid like 'NAS%' Then substring (cid ,4,len(cid))
+	 else cid 
+	 end as cid,
+case when bdate > GETDATE() then null 
+     else bdate
+	 end as bdate,
+case when	upper( trim (gen)) in ('F' , 'FEMALE') THEN 'Female'
+     when	upper( trim (gen)) in ('M' , 'MALE') THEN 'Male'
+	 Else 'N/A'
+	 End as gen
+
+
+
+
+
+// silver.erp_loc_a101 inserting//
+
+
+insert into silver.erp_loc_a101(cid,cntry)
+
+SELECT 
+    REPLACE(cid, '-', ' ') AS cid,
+    CASE 
+        WHEN TRIM(cntry) = 'DE' THEN 'Germany'
+        WHEN TRIM(cntry) IN ('US', 'USA') THEN 'United States'
+        WHEN TRIM(cntry) = '' OR cntry IS NULL THEN 'N/A'
+        ELSE TRIM(cntry)
+    END AS cntry
+FROM Bronze.erp_loc_a101;
+
+
+//  silver.erp_px_cat_g1v2 inserting//
+
+
+insert into silver.erp_px_cat_g1v2
+(id,cat,subcat,maintenance)
+
+select id,cat,subcat,maintenance
+from Bronze.erp_px_cat_g1v2
 
