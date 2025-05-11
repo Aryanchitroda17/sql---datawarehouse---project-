@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 Exec silver.load_silver 
 
 
